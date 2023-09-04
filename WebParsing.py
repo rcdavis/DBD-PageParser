@@ -1,52 +1,50 @@
 from bs4 import BeautifulSoup
+from Perk import Perk
 
-def parsePerkPage(htmlFile: str, locale = ''):
+def parse_perk_page(htmlFile: str, locale = ''):
     with open(htmlFile, "r", encoding="utf8") as f:
-        perks = getStringDefinitions(f.read(), "div.formattedPerkDesc")
-        writeOutPerkNames("OutputStrings/perkNames" + locale + ".xml", perks.keys())
-        writeOutPerkDescs("OutputStrings/perkDescriptions" + locale + ".xml", perks)
+        perks = get_perks(f.read(), "div.formattedPerkDesc")
+        export_perk_names("OutputStrings/perkNames" + locale + ".xml", perks)
+        export_perk_descriptions("OutputStrings/perkDescriptions" + locale + ".xml", perks)
 
-def writeOutPerkNames(file: str, perkNames: list[str]):
+def export_perk_names(file: str, perks: list[Perk]):
     with open(file, "w", encoding="utf8") as w:
         w.write('<?xml version="1.0" encoding="utf-8"?>\n')
         w.write("<resources>\n")
-        for name in perkNames:
-            w.write("    <string name=\"" + createPerkStringName(name, "_name") + "\">" + sanitizeText(name) + "</string>\n")
+        for perk in perks:
+            w.write("    <string name=\"" + perk.get_perk_name_id() + "\">" + perk.get_sanitized_name() + "</string>\n")
         w.write("</resources>\n")
 
-
-def writeOutPerkDescs(file: str, descs: dict[str, str]):
+def export_perk_descriptions(file: str, perks: list[Perk]):
     with open(file, "w", encoding="utf8") as w:
         w.write('<?xml version="1.0" encoding="utf-8"?>\n')
         w.write("<resources>\n")
-        for name, text in descs.items():
-            w.write("    <string name=\"" + createPerkStringName(name, "_desc") + "\">" + sanitizeText(text) + "</string>\n")
+        for perk in perks:
+            w.write("    <string name=\"" + perk.get_perk_description_id() + "\">" + perk.get_sanitized_description() + "</string>\n")
         w.write("</resources>\n")
 
-
-def getStringDefinitions(htmlStr: str, descType = "div.formattedPerkDesc") -> dict[str, str]:
+def get_perks(htmlStr: str, descType = "div.formattedPerkDesc") -> list[Perk]:
     perksHtml = BeautifulSoup(htmlStr, 'html.parser')
 
-    results = {}
+    perks = []
     for tableRow in perksHtml.select("tbody > tr"):
         try:
             heading = tableRow.find("th").find("a")
             perkName = heading['title']
             descriptions = tableRow.select(descType)
-            results[perkName] = descriptions[0].text
+            perks.append(Perk('', perkName, descriptions[0].text))
         except:
-            print("Error getting string definition")
+            print("Error getting Perk values")
 
-    return results
+    return perks
 
-def sanitizeText(text: str) -> str:
-    return text.replace(' ', '').replace('&', '&amp;').replace('"', '\\"').replace("'", "\\'").replace('\n', '\\n')
+"""
+with open("PerkPages/Perks_fr.html", "r", encoding="utf8") as f:
+    perksHtml = BeautifulSoup(f.read(), 'html.parser')
+    with open("PerkPages/Tables_fr.xml", "w", encoding="utf8") as w:
+        for table in perksHtml.select("table"):
+            w.write(str(table))
+"""
 
-def createPerkStringName(text: str, endingName: str) -> str:
-    nameStr = 'perk_' + text.lower().replace(':', '').replace('!', '').replace("'", "")
-    nameStr = nameStr.replace('-', '_').replace(' ', '_').replace('é', 'e').replace('à', 'a').replace('&', 'and')
-    return nameStr + endingName
-
-
-parsePerkPage("PerkPages/Perks_en.html")
-parsePerkPage("PerkPages/Perks_fr.html", '_fr')
+parse_perk_page("PerkPages/Perks_en.html")
+parse_perk_page("PerkPages/Perks_fr.html", '_fr')
