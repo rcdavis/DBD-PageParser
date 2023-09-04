@@ -3,14 +3,14 @@ from bs4 import BeautifulSoup
 def parsePerkPage(htmlFile: str, locale = ''):
     with open(htmlFile, "r", encoding="utf8") as f:
         perks = getStringDefinitions(f.read(), "div.formattedPerkDesc")
-        writeOutPerkNames("OutputStrings/perkNames" + locale + ".xml", perks)
+        writeOutPerkNames("OutputStrings/perkNames" + locale + ".xml", perks.keys())
         writeOutPerkDescs("OutputStrings/perkDescriptions" + locale + ".xml", perks)
 
-def writeOutPerkNames(file: str, perks: dict[str, str]):
+def writeOutPerkNames(file: str, perkNames: list[str]):
     with open(file, "w", encoding="utf8") as w:
         w.write('<?xml version="1.0" encoding="utf-8"?>\n')
         w.write("<resources>\n")
-        for name in perks.keys():
+        for name in perkNames:
             w.write("    <string name=\"" + createPerkStringName(name, "_name") + "\">" + sanitizeText(name) + "</string>\n")
         w.write("</resources>\n")
 
@@ -33,9 +33,6 @@ def getStringDefinitions(htmlStr: str, descType = "div.formattedPerkDesc") -> di
             heading = tableRow.find("th").find("a")
             perkName = heading['title']
             descriptions = tableRow.select(descType)
-            if len(descriptions) < 1:
-                continue
-
             results[perkName] = descriptions[0].text
         except:
             print("Error getting string definition")
