@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 # Test pages
-rawStrings.xml
-formattedStrings.xml
-Tables.txt
+perkNames.xml
+perkDescriptions.xml
+Tables.xml
 strings.xml
