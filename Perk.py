@@ -30,6 +30,15 @@ class Perk:
     def __create_string_name(self, text: str) -> str:
         """Cleans up text so that it can be defined as a name within strings.xml"""
         nameStr = 'perk_' + text.lower().replace(':', '').replace('!', '').replace("'", "")
-        nameStr = nameStr.replace('-', '_').replace(' ', '_').replace('é', 'e').replace('à', 'a').replace('&', 'and')
+        nameStr = nameStr.replace('-', '_').replace(' ', '_').replace('__', '_').replace('&', 'and')
+        nameStr = nameStr.replace('é', 'e').replace('à', 'a').replace('â', 'a')
         return nameStr
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Perk):
+            return self.__slug == other.__slug and self.__name == other.__name and self.__description == other.__description
+        return False
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
 

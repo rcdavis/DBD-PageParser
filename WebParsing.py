@@ -34,7 +34,9 @@ def get_perks(htmlStr: str, descType = "div.formattedPerkDesc") -> list[Perk]:
             perkName = heading['title']
             descriptions = tableRow.select(descType)
             imageUrl = tableRow.select("a.image")[0]['href']
-            perks.append(Perk(get_slug(imageUrl), perkName, descriptions[0].text))
+            perk = Perk(get_slug(imageUrl), perkName, descriptions[0].text)
+            if not perk in perks:
+                perks.append(perk)
         except:
             print("Error getting Perk values")
 
