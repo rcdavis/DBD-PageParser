@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from Perk import Perk
+import re
 
 def parse_perk_page(htmlFile: str, locale = ''):
     with open(htmlFile, "r", encoding="utf8") as f:
@@ -32,11 +33,22 @@ def get_perks(htmlStr: str, descType = "div.formattedPerkDesc") -> list[Perk]:
             heading = tableRow.find("th").find("a")
             perkName = heading['title']
             descriptions = tableRow.select(descType)
-            perks.append(Perk('', perkName, descriptions[0].text))
+            imageUrl = tableRow.select("a.image")[0]['href']
+            perks.append(Perk(get_slug(imageUrl), perkName, descriptions[0].text))
         except:
             print("Error getting Perk values")
 
     return perks
+
+def get_slug(imageUrl: str) -> str:
+    try:
+        startIndex = imageUrl.find('IconPerks_') + len('IconPerks_')
+        endIndex = imageUrl.find('.png')
+        return re.sub('(?<!^)(?=[A-Z])', '_', imageUrl[startIndex:endIndex]).lower()
+    except:
+        print(f"Failed to get slug for {imageUrl}")
+
+    return ''
 
 """
 with open("PerkPages/Perks_fr.html", "r", encoding="utf8") as f:

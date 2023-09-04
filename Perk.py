@@ -17,11 +17,11 @@ class Perk:
 
     def get_perk_name_id(self) -> str:
         """The name for the string id within the name strings.xml"""
-        return self.__create_string_name(self.__name) + '_name'
+        return self.__create_string_name(self.__slug) + '_name'
 
     def get_perk_description_id(self) -> str:
         """The name for the string id within the description strings.xml"""
-        return self.__create_string_name(self.__name) + '_desc'
+        return self.__create_string_name(self.__slug) + '_desc'
 
     def __sanitize_text(self, text: str) -> str:
         """Cleans up text so that it can be placed as content within strings.xml"""
