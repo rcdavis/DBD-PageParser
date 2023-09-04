@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 def parsePerkPage(htmlFile: str, locale = ''):
     with open(htmlFile, "r", encoding="utf8") as f:
         perks = getStringDefinitions(f.read(), "div.formattedPerkDesc")
-        writeOutPerkNames("perkNames" + locale + ".xml", perks)
-        writeOutPerkDescs("perkDescriptions" + locale + ".xml", perks)
+        writeOutPerkNames("OutputStrings/perkNames" + locale + ".xml", perks)
+        writeOutPerkDescs("OutputStrings/perkDescriptions" + locale + ".xml", perks)
 
 def writeOutPerkNames(file: str, perks: dict[str, str]):
     with open(file, "w", encoding="utf8") as w:
@@ -51,4 +51,5 @@ def createPerkStringName(text: str, endingName: str) -> str:
     return nameStr + endingName
 
 
-parsePerkPage("Perks_en.html")
+parsePerkPage("PerkPages/Perks_en.html")
+parsePerkPage("PerkPages/Perks_fr.html", '_fr')

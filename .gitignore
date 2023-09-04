@@ -164,3 +164,6 @@ perkNames.xml
 perkDescriptions.xml
 Tables.xml
 strings.xml
+
+# Output Files
+OutputStrings/
