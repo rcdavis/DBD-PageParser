@@ -65,3 +65,48 @@ class PerkParser:
 
     def __format_perk_description_text(self, tag: Tag) -> str:
         return tag.text
+
+    def get_formatted_description(self):
+        strs = []
+
+        with open(self.__htmlFile, 'r', encoding='utf8') as f:
+            perksHtml = BeautifulSoup(f.read(), 'html.parser')
+            for perkDesc in perksHtml.select('div.formattedPerkDesc'):
+                for unwrapTag in perkDesc.select('a, i, b, p, ul'):
+                    unwrapTag.unwrap()
+                for imgTag in perkDesc.select('img'):
+                    imgTag.decompose()
+                for listTag in perkDesc.select("li"):
+                    listTag.insert_before(' \u25CF ')
+                    listTag.unwrap()
+                for span in perkDesc.select('span'):
+                    if not span.has_attr('style'):
+                        span.unwrap()
+                    elif span['style'] == self.__tier1Color:
+                        span.wrap(perksHtml.new_tag('Tier1'))
+                        span.unwrap()
+                    elif span['style'] == self.__tier2Color:
+                        span.wrap(perksHtml.new_tag('Tier2'))
+                        span.unwrap()
+                    elif span['style'] == self.__tier3Color:
+                        span.wrap(perksHtml.new_tag('Tier3'))
+                        span.unwrap()
+                    elif span['style'] == self.__uniquePerkColor:
+                        span.wrap(perksHtml.new_tag('UniquePerk'))
+                        span.unwrap()
+                    elif span['style'] == self.__quoteColor:
+                        span.wrap(perksHtml.new_tag('Quote'))
+                        span.unwrap()
+                    else:
+                        span.unwrap()
+
+                htmlText = f"{perkDesc}".replace('<div class="formattedPerkDesc">', '').replace('</div>', '')
+                htmlText = htmlText.replace('<br/>', '\n').replace('\n', '\\n')
+                strs.append(htmlText)
+
+        with open(f"OutputStrings/Perks-testing.xml", 'w', encoding='utf8') as w:
+            w.write('<?xml version="1.0" encoding="utf-8"?>\n')
+            w.write('<resources>\n')
+            for s in strs:
+                w.write(f"    <string>{s}</string>\n")
+            w.write('</resources>\n')
