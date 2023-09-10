@@ -11,6 +11,17 @@ class PerkParser:
     __uniquePerkColor = 'color: #ff8800;'
     __quoteColor = 'color: #e7cda2;'
 
+    __stringsHeader = '<?xml version="1.0" encoding="utf-8"?>\n'
+    __blackCircleChar = ' \u25CF '
+
+    __renamedPerkSlugs: dict[str, str] = {
+        'fixated': 'self_aware',
+        'camaraderie': 'kinship',
+        'surge': 'jolt',
+        'cruel_limits': 'claustrophobia',
+        'mindbreaker': 'fearmonger'
+    }
+
     def __init__(self, htmlFile: str):
         self.__htmlFile = htmlFile
         self.__perks = self.__parse_perks()
@@ -20,7 +31,7 @@ class PerkParser:
 
     def export_perk_names(self, xmlFile: str):
         with open(xmlFile, "w", encoding="utf8") as w:
-            w.write('<?xml version="1.0" encoding="utf-8"?>\n')
+            w.write(self.__stringsHeader)
             w.write("<resources>\n")
             for perk in self.__perks:
                 w.write('    <string name="' + perk.get_perk_name_id() + '">' + perk.get_sanitized_name() + '</string>\n')
@@ -28,7 +39,7 @@ class PerkParser:
 
     def export_perk_descriptions(self, xmlFile: str):
         with open(xmlFile, "w", encoding="utf8") as w:
-            w.write('<?xml version="1.0" encoding="utf-8"?>\n')
+            w.write(self.__stringsHeader)
             w.write("<resources>\n")
             for perk in self.__perks:
                 w.write('    <string name="' + perk.get_perk_description_id() + '">' + perk.get_sanitized_description() + '</string>\n')
@@ -45,7 +56,7 @@ class PerkParser:
                     perkName = heading['title']
                     descriptions = tableRow.select("div.formattedPerkDesc")
                     imageUrl = tableRow.select("a.image")[0]['href']
-                    perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(descriptions[0]))
+                    perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(descriptions[0], soup))
                     if not perk in self.__perks:
                         self.__perks.append(perk)
                 except:
@@ -57,56 +68,47 @@ class PerkParser:
         try:
             startIndex = imageUrl.find('IconPerks_') + len('IconPerks_')
             endIndex = imageUrl.find('.png')
-            return re.sub('(?<!^)(?=[A-Z])', '_', imageUrl[startIndex:endIndex]).lower()
+            slug = re.sub('(?<!^)(?=[A-Z])', '_', imageUrl[startIndex:endIndex]).lower()
+            if slug in self.__renamedPerkSlugs:
+                return self.__renamedPerkSlugs[slug]
+            return slug.replace('%_c3%_a2', 'a')
         except:
             print(f"Failed to get slug for {imageUrl}\n")
 
         return ''
 
-    def __format_perk_description_text(self, tag: Tag) -> str:
-        return tag.text
+    def __format_perk_description_text(self, tag: Tag, soup: BeautifulSoup) -> str:
+        for unwrapTag in tag.select('a, i, b, p, ul, span'):
+            unwrapTag.unwrap()
+        for imgTag in tag.select('img'):
+            imgTag.decompose()
+        for listTag in tag.select('li'):
+            listTag.insert_before(self.__blackCircleChar)
+            listTag.unwrap()
+        """for span in tag.select('span'):
+            if not span.has_attr('style'):
+                span.unwrap()
+            elif span['style'] == self.__tier1Color:
+                #newTag = soup.new_tag('font')
+                #newTag['color'] = '#e8c252'
+                #span.wrap(newTag)
+                span.wrap(soup.new_tag('Tier1'))
+                span.unwrap()
+            elif span['style'] == self.__tier2Color:
+                span.wrap(soup.new_tag('Tier2'))
+                span.unwrap()
+            elif span['style'] == self.__tier3Color:
+                span.wrap(soup.new_tag('Tier3'))
+                span.unwrap()
+            elif span['style'] == self.__uniquePerkColor:
+                span.wrap(soup.new_tag('UniquePerk'))
+                span.unwrap()
+            elif span['style'] == self.__quoteColor:
+                span.wrap(soup.new_tag('Quote'))
+                span.unwrap()
+            else:
+                span.unwrap()"""
 
-    def get_formatted_description(self):
-        strs = []
+        htmlText = f"{tag}".replace('<div class="formattedPerkDesc">', '').replace('</div>', '')
+        return htmlText.replace('<br/>', '\n').replace('\n', '\\n')
 
-        with open(self.__htmlFile, 'r', encoding='utf8') as f:
-            perksHtml = BeautifulSoup(f.read(), 'html.parser')
-            for perkDesc in perksHtml.select('div.formattedPerkDesc'):
-                for unwrapTag in perkDesc.select('a, i, b, p, ul'):
-                    unwrapTag.unwrap()
-                for imgTag in perkDesc.select('img'):
-                    imgTag.decompose()
-                for listTag in perkDesc.select("li"):
-                    listTag.insert_before(' \u25CF ')
-                    listTag.unwrap()
-                for span in perkDesc.select('span'):
-                    if not span.has_attr('style'):
-                        span.unwrap()
-                    elif span['style'] == self.__tier1Color:
-                        span.wrap(perksHtml.new_tag('Tier1'))
-                        span.unwrap()
-                    elif span['style'] == self.__tier2Color:
-                        span.wrap(perksHtml.new_tag('Tier2'))
-                        span.unwrap()
-                    elif span['style'] == self.__tier3Color:
-                        span.wrap(perksHtml.new_tag('Tier3'))
-                        span.unwrap()
-                    elif span['style'] == self.__uniquePerkColor:
-                        span.wrap(perksHtml.new_tag('UniquePerk'))
-                        span.unwrap()
-                    elif span['style'] == self.__quoteColor:
-                        span.wrap(perksHtml.new_tag('Quote'))
-                        span.unwrap()
-                    else:
-                        span.unwrap()
-
-                htmlText = f"{perkDesc}".replace('<div class="formattedPerkDesc">', '').replace('</div>', '')
-                htmlText = htmlText.replace('<br/>', '\n').replace('\n', '\\n')
-                strs.append(htmlText)
-
-        with open(f"OutputStrings/Perks-testing.xml", 'w', encoding='utf8') as w:
-            w.write('<?xml version="1.0" encoding="utf-8"?>\n')
-            w.write('<resources>\n')
-            for s in strs:
-                w.write(f"    <string>{s}</string>\n")
-            w.write('</resources>\n')
