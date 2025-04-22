@@ -23,13 +23,20 @@ class PerkParser:
     }
 
     def __init__(self, htmlFile: str):
-        self.__htmlFile = htmlFile
-        self.__perks = self.__parse_perks()
+        self.__perks = self.__parse_perks(htmlFile)
 
     def get_perks(self) -> list[Perk]:
+        """List of perks that were parsed.
+        Returns:
+            list[Perk]: List of parsed perks.
+        """
         return self.__perks
 
     def export_perk_names(self, xmlFile: str):
+        """Exports the parsed perks into a strings.xml file for perk names.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk names.
+        """
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
@@ -38,6 +45,10 @@ class PerkParser:
             w.write("</resources>\n")
 
     def export_perk_descriptions(self, xmlFile: str):
+        """Exports the parsed perks into a strings.xml file for perk descriptions.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk descriptions.
+        """
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
@@ -45,26 +56,38 @@ class PerkParser:
                 w.write('    <string name="' + perk.get_perk_description_id() + '">' + perk.get_sanitized_description() + '</string>\n')
             w.write("</resources>\n")
 
-    def __parse_perks(self) -> list[Perk]:
-        with open(self.__htmlFile, 'r', encoding='utf8') as f:
+    def __parse_perks(self, htmlFile: str) -> list[Perk]:
+        """Parses perks from the HTML file.
+        Args:
+            htmlFile (str): HTML file to parse perks from.
+        Returns:
+            list[Perk]: List of parsed perks.
+        """
+        perks: list[Perk] = []
+        with open(htmlFile, 'r', encoding='utf8') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
 
-            self.__perks: list[Perk] = []
             for tableRow in soup.select("tbody > tr"):
                 try:
                     heading = tableRow.find("th").find("a")
                     perkName = heading['title']
-                    descriptions = tableRow.select("div.formattedPerkDesc")
+                    description = tableRow.select("div.formattedPerkDesc")[0]
                     imageUrl = tableRow.select("a.image")[0]['href']
-                    perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(descriptions[0], soup))
-                    if not perk in self.__perks:
-                        self.__perks.append(perk)
-                except:
-                    print("Error getting Perk values")
+                    perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(description))
+                    if not perk in perks:
+                        perks.append(perk)
+                except Exception as e:
+                    print(f"Error getting Perk values: {e}")
 
-        return self.__perks
+        return perks
 
     def __get_slug(self, imageUrl: str) -> str:
+        """Gets the text of the name made for string ids in strings.xml.
+        Args:
+            imageUrl (str): The URL to the image.
+        Returns:
+            str: Slug created based off perk name.
+        """
         try:
             startIndex = imageUrl.find('IconPerks_') + len('IconPerks_')
             endIndex = imageUrl.find('.png')
@@ -77,7 +100,13 @@ class PerkParser:
 
         return ''
 
-    def __format_perk_description_text(self, tag: Tag, soup: BeautifulSoup) -> str:
+    def __format_perk_description_text(self, tag: Tag) -> str:
+        """Formats the description of perks for strings.xml.
+        Args:
+            tag (Tag): HTML tag that contains the perk description.
+        Returns:
+            str: Formatted description of the perk.
+        """
         for unwrapTag in tag.select('a, i, b, p, ul, span'):
             unwrapTag.unwrap()
         for imgTag in tag.select('img'):
