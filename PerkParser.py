@@ -69,10 +69,13 @@ class PerkParser:
 
             for tableRow in soup.select("tbody > tr"):
                 try:
-                    heading = tableRow.find("th").find("a")
-                    perkName = heading['title']
-                    description = tableRow.select("div.formattedPerkDesc")[0]
-                    imageUrl = tableRow.select("a.image")[0]['href']
+                    headings = tableRow.find_all("th")
+                    # This will be the 1st column with the image
+                    imageUrl = headings[0].span.a["href"]
+                    # This will be the 2nd column with the Perk name
+                    perkName = headings[1].a.text
+                    # The first <td> with be the Description column
+                    description = tableRow.find("td")
                     perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(description))
                     if not perk in perks:
                         perks.append(perk)
@@ -95,8 +98,8 @@ class PerkParser:
             if slug in self.__renamedPerkSlugs:
                 return self.__renamedPerkSlugs[slug]
             return slug.replace('%_c3%_a2', 'a')
-        except:
-            print(f"Failed to get slug for {imageUrl}\n")
+        except Exception as e:
+            print(f"Failed to get slug for {imageUrl}: {e}")
 
         return ''
 
@@ -139,5 +142,5 @@ class PerkParser:
                 span.unwrap()"""
 
         htmlText = f"{tag}".replace('<div class="formattedPerkDesc">', '').replace('</div>', '')
-        return htmlText.replace('<br/>', '\n').replace('\n', '\\n')
+        return htmlText.replace('<br/>', '\n').replace('\n', '\\n').replace('<td>', '').replace('</td>', '')
 

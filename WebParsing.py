@@ -1,8 +1,12 @@
 from PerkParser import PerkParser
 
-parser = PerkParser("PerkPages/Perks_en.html")
+"""parser = PerkParser("PerkPages/Perks_en.html")
 parser.export_perk_names("OutputStrings/perkNames.xml")
-parser.export_perk_descriptions("OutputStrings/perkDescriptions.xml")
+parser.export_perk_descriptions("OutputStrings/perkDescriptions.xml")"""
+
+parser = PerkParser("PerkPages/PerksNew.html")
+parser.export_perk_names("OutputStrings/perkNamesNew.xml")
+parser.export_perk_descriptions("OutputStrings/perkDescriptionsNew.xml")
 
 """parser = PerkParser("PerkPages/Perks_fr.html")
 parser.export_perk_names("OutputStrings/perkNames_fr.xml")
