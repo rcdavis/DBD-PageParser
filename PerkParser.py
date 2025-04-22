@@ -70,38 +70,17 @@ class PerkParser:
             for tableRow in soup.select("tbody > tr"):
                 try:
                     headings = tableRow.find_all("th")
-                    # This will be the 1st column with the image
-                    imageUrl = headings[0].span.a["href"]
                     # This will be the 2nd column with the Perk name
                     perkName = headings[1].a.text
                     # The first <td> with be the Description column
                     description = tableRow.find("td")
-                    perk = Perk(self.__get_slug(imageUrl), perkName, self.__format_perk_description_text(description))
+                    perk = Perk(perkName, self.__format_perk_description_text(description))
                     if not perk in perks:
                         perks.append(perk)
                 except Exception as e:
                     print(f"Error getting Perk values: {e}")
 
         return perks
-
-    def __get_slug(self, imageUrl: str) -> str:
-        """Gets the text of the name made for string ids in strings.xml.
-        Args:
-            imageUrl (str): The URL to the image.
-        Returns:
-            str: Slug created based off perk name.
-        """
-        try:
-            startIndex = imageUrl.find('IconPerks_') + len('IconPerks_')
-            endIndex = imageUrl.find('.png')
-            slug = re.sub('(?<!^)(?=[A-Z])', '_', imageUrl[startIndex:endIndex]).lower()
-            if slug in self.__renamedPerkSlugs:
-                return self.__renamedPerkSlugs[slug]
-            return slug.replace('%_c3%_a2', 'a')
-        except Exception as e:
-            print(f"Failed to get slug for {imageUrl}: {e}")
-
-        return ''
 
     def __format_perk_description_text(self, tag: Tag) -> str:
         """Formats the description of perks for strings.xml.
