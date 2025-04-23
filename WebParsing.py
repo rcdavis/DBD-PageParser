@@ -7,6 +7,8 @@ parser.export_perk_descriptions("OutputStrings/perkDescriptions.xml")"""
 parser = DBDParser("PerkPages/PerksNew.html")
 parser.export_perk_names("OutputStrings/perkNamesNew.xml")
 parser.export_perk_descriptions("OutputStrings/perkDescriptionsNew.xml")
+parser.export_survivor_names("OutputStrings/survivor_name_strings.xml")
+parser.export_killer_names("OutputStrings/killer_name_strings.xml")
 
 """parser = PerkParser("PerkPages/Perks_fr.html")
 parser.export_perk_names("OutputStrings/perkNames_fr.xml")

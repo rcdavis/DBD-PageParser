@@ -57,6 +57,34 @@ class DBDParser:
                 w.write(f'    <string name="{perk.get_perk_description_id()}">{perk.get_sanitized_description()}</string>\n')
             w.write("</resources>\n")
 
+    def export_survivor_names(self, xmlFile: str):
+        """Exports the names of the survivors to an Android strings.
+        Args:
+            xmlFile (str): The Android strings file to save to.
+        """
+        with open(xmlFile, "w", encoding="utf8") as w:
+            w.write(self.__stringsHeader)
+            w.write("<resources>\n")
+            w.write(f'    <string name="survivor_all">All</string>\n')
+            for survivor in self.__get_owners(self.__survivorPerks):
+                if survivor:
+                    w.write(f'    <string name="survivor_{survivor.lower().replace('é', 'e').replace('-', '_')}">{survivor}</string>\n')
+            w.write("</resources>\n")
+
+    def export_killer_names(self, xmlFile: str):
+        """Exports the names of the killers to an Android strings.
+        Args:
+            xmlFile (str): The Android strings file to save to.
+        """
+        with open(xmlFile, "w", encoding="utf8") as w:
+            w.write(self.__stringsHeader)
+            w.write("<resources>\n")
+            w.write(f'    <string name="killer_all">All</string>\n')
+            for killer in self.__get_owners(self.__killerPerks):
+                if killer:
+                    w.write(f'    <string name="killer_{killer.lower().replace('ō', 'o').replace(' ', '_')}">{killer}</string>\n')
+            w.write("</resources>\n")
+
     def parse(self, htmlFile: str):
         """Parses all data from the HTML file.
         Args:
@@ -117,3 +145,9 @@ class DBDParser:
         htmlText = f"{tag}".replace('<div class="formattedPerkDesc">', '').replace('</div>', '')
         return htmlText.replace('<br/>', '\n').replace('\n', '\\n').replace('<td>', '').replace('</td>', '')
 
+    def __get_owners(self, perks: list[Perk]) -> list[str]:
+        owners: list[str] = []
+        for perk in perks:
+            if not perk.get_owner() in owners:
+                owners.append(perk.get_owner())
+        return owners
