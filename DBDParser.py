@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup, Tag
 from Perk import Perk
 import requests
 import os
+from pathlib import Path
 
 class DBDParser:
     """Parser for DBD data"""
@@ -229,6 +230,22 @@ class DBDParser:
 
             f.write(')\n')
 
+    def export_perk_icons(self, outputDir: str = 'OutputStrings/Icons'):
+        """Exports all icon images for the perks.
+        Args:
+            outputDir (str): The directory to save all the icon images to.
+        """
+        directory = Path(outputDir)
+
+        for perk in self.get_perks():
+            response = requests.get(perk.get_icon_url())
+            if response.status_code == 200:
+                file = directory / f'{perk.get_icon_name_slug()}.png'
+                with self.__open_file(file, 'wb', None) as f:
+                    f.write(response.content)
+            else:
+                print(f'Failed to download icon image for "{perk.get_name()}". HTTP Status Code: {response.status_code}')
+
     def parse(self, htmlFile: str):
         """Parses all data from the HTML file.
         Args:
@@ -267,6 +284,8 @@ class DBDParser:
         for tableRow in tableTag.tbody.find_all("tr"):
             try:
                 headings = tableRow.find_all("th")
+                # This will be the 1st column with the Perk icon
+                iconUrl = headings[0].span.a.img['data-src']
                 # This will be the 2nd column with the Perk name
                 perkName = headings[1].a.text
                 # The first <td> with be the Description column
@@ -277,7 +296,7 @@ class DBDParser:
                 if titleText:
                     owner = titleText.text
 
-                perk = Perk(perkName, self.__format_perk_description_text(description), owner)
+                perk = Perk(perkName, self.__format_perk_description_text(description), owner, iconUrl)
                 if not perk in perks:
                     perks.append(perk)
             except Exception as e:
@@ -316,7 +335,7 @@ class DBDParser:
                 owners.append(perk.get_owner())
         return owners
 
-    def __open_file(self, file: str, mode: str):
+    def __open_file(self, file: str, mode: str, encoding: str = 'utf8'):
         """Helper that creates directories, if needed, and opens a file.
         Args:
             file (str): File to open or create.
@@ -328,4 +347,4 @@ class DBDParser:
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-        return open(file, mode, encoding='utf8')
+        return open(file, mode, encoding=encoding)

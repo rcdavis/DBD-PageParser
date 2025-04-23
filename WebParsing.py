@@ -18,3 +18,6 @@ parser.export_survivor_perk_list("OutputStrings/SurvivorPerksList.kt")
 
 parser.export_killer_enum_class("OutputStrings/Killer.kt")
 parser.export_killer_perk_list("OutputStrings/KillerPerksList.kt")
+
+# Downloads all of the icons for perks
+#parser.export_perk_icons()
