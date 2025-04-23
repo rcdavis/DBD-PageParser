@@ -161,3 +161,6 @@ cython_debug/
 
 # Output Files and Tests
 OutputStrings/
+
+# Local directory for testing HTML parsing
+PerkPages/
