@@ -2,13 +2,11 @@
 class Perk:
     """Represents the name and description of a DBD Perk.
     Attributes:
-        __slug (str): The name written without white space and diacritics.
         __name (str): The name of the Perk.
         __description (str): The description of the Perk.
     """
 
-    def __init__(self, slug: str, name: str, description: str):
-        self.__slug = slug
+    def __init__(self, name: str, description: str):
         self.__name = name
         self.__description = description
 
@@ -31,14 +29,14 @@ class Perk:
         Returns:
             str: The id for the name string.
         """
-        return self.__create_string_name(self.__slug) + '_name'
+        return self.__create_string_name(self.__name) + '_name'
 
     def get_perk_description_id(self) -> str:
         """The name for the string id within the description strings.xml for Android.
         Returns:
             str: The id for the description string.
         """
-        return self.__create_string_name(self.__slug) + '_desc'
+        return self.__create_string_name(self.__name) + '_desc'
 
     def __sanitize_text(self, text: str) -> str:
         """Cleans up text so that it can be placed as content within strings.xml.
@@ -64,7 +62,7 @@ class Perk:
     def __eq__(self, other: object) -> bool:
         """The Equal operator"""
         if isinstance(other, Perk):
-            return self.__slug == other.__slug and self.__name == other.__name and self.__description == other.__description
+            return self.__name == other.__name and self.__description == other.__description
         return False
 
     def __ne__(self, other: object) -> bool:
