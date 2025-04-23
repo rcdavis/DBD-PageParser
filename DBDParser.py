@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup, Tag
 from Perk import Perk
+import requests
 
 class DBDParser:
     """Parser for DBD data"""
@@ -21,10 +22,9 @@ class DBDParser:
         'mindbreaker': 'fearmonger'
     }
 
-    def __init__(self, htmlFile: str):
+    def __init__(self):
         self.__survivorPerks = []
         self.__killerPerks = []
-        self.parse(htmlFile)
 
     def get_perks(self) -> list[Perk]:
         """List of perks that were parsed.
@@ -224,6 +224,20 @@ class DBDParser:
 
             self.__survivorPerks = self.__parse_perks(tables[0])
             self.__killerPerks = self.__parse_perks(tables[1])
+
+    def parse_from_url(self, url: str):
+        """Parses perks from the website from the URL.
+        Args:
+            url (str): Website to parse perks from.
+        """
+        html_content = requests.get(url).text
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        tables = soup.find_all("table")
+
+        self.__survivorPerks = self.__parse_perks(tables[0])
+        self.__killerPerks = self.__parse_perks(tables[1])
 
     def __parse_perks(self, tableTag: Tag) -> list[Perk]:
         """Parses perks from the HTML Table.

@@ -1,6 +1,9 @@
 from DBDParser import DBDParser
 
-parser = DBDParser("PerkPages/Perks_en.html")
+parser = DBDParser()
+#parser.parse("PerkPages/Perks_en.html")
+parser.parse_from_url('https://deadbydaylight.fandom.com/wiki/Perks')
+
 parser.export_survivor_perk_names("OutputStrings/survivor_perk_name_strings.xml")
 parser.export_survivor_perk_descriptions("OutputStrings/survivor_perk_descriptions_strings.xml")
 
