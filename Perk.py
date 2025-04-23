@@ -4,6 +4,7 @@ class Perk:
     Attributes:
         __name (str): The name of the Perk.
         __description (str): The description of the Perk.
+        __owner (str): Character that the perk comes from.
     """
 
     def __init__(self, name: str, description: str, owner: str):
@@ -69,10 +70,12 @@ class Perk:
     def __eq__(self, other: object) -> bool:
         """The Equal operator"""
         if isinstance(other, Perk):
-            return self.__name == other.__name and self.__description == other.__description
+            return self.__name == other.__name and self.__description == other.__description and self.__owner == other.__owner
         return False
 
     def __ne__(self, other: object) -> bool:
         """The Not Equal operator"""
         return not self.__eq__(other)
 
+    def __str__(self) -> str:
+        return f"Person(name='{self.__name}', owner='{self.__owner}')"

@@ -22,9 +22,8 @@ class DBDParser:
     }
 
     def __init__(self, htmlFile: str):
-        self.__perks = []
-        self.__killers = []
-        self.__survivors = []
+        self.__survivorPerks = []
+        self.__killerPerks = []
         self.parse(htmlFile)
 
     def get_perks(self) -> list[Perk]:
@@ -32,7 +31,7 @@ class DBDParser:
         Returns:
             list[Perk]: List of parsed perks.
         """
-        return self.__perks
+        return self.__survivorPerks + self.__killerPerks
 
     def export_perk_names(self, xmlFile: str):
         """Exports the parsed perks into a strings.xml file for perk names.
@@ -42,7 +41,7 @@ class DBDParser:
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
-            for perk in self.__perks:
+            for perk in self.get_perks():
                 w.write(f'    <string name="{perk.get_perk_name_id()}">{perk.get_sanitized_name()}</string>\n')
             w.write("</resources>\n")
 
@@ -54,7 +53,7 @@ class DBDParser:
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
-            for perk in self.__perks:
+            for perk in self.get_perks():
                 w.write(f'    <string name="{perk.get_perk_description_id()}">{perk.get_sanitized_description()}</string>\n')
             w.write("</resources>\n")
 
@@ -68,28 +67,13 @@ class DBDParser:
 
             tables = soup.find_all("table")
 
-            survivorPerks = self.__parse_perks(tables[0])
-            killerPerks = self.__parse_perks(tables[1])
-
-            self.__perks = survivorPerks + killerPerks
-
-            """for tableRow in soup.select("tbody > tr"):
-                try:
-                    headings = tableRow.find_all("th")
-                    # This will be the 2nd column with the Perk name
-                    perkName = headings[1].a.text
-                    # The first <td> with be the Description column
-                    description = tableRow.find("td")
-                    perk = Perk(perkName, self.__format_perk_description_text(description), '')
-                    if not perk in perks:
-                        perks.append(perk)
-                except Exception as e:
-                    print(f"Error getting Perk values: {e}")"""
+            self.__survivorPerks = self.__parse_perks(tables[0])
+            self.__killerPerks = self.__parse_perks(tables[1])
 
     def __parse_perks(self, tableTag: Tag) -> list[Perk]:
-        """Parses perks from the HTML file.
+        """Parses perks from the HTML Table.
         Args:
-            htmlFile (str): HTML file to parse perks from.
+            tableTag (Tag): HTML Table that contains the perks.
         Returns:
             list[Perk]: List of parsed perks.
         """
@@ -101,7 +85,13 @@ class DBDParser:
                 perkName = headings[1].a.text
                 # The first <td> with be the Description column
                 description = tableRow.find("td")
-                perk = Perk(perkName, self.__format_perk_description_text(description), '')
+                # The fourth column with character info
+                owner: str = None
+                titleText = headings[2].find("a")
+                if titleText:
+                    owner = titleText.text
+
+                perk = Perk(perkName, self.__format_perk_description_text(description), owner)
                 if not perk in perks:
                     perks.append(perk)
             except Exception as e:
