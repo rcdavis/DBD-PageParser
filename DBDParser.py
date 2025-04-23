@@ -33,27 +33,57 @@ class DBDParser:
         """
         return self.__survivorPerks + self.__killerPerks
 
-    def export_perk_names(self, xmlFile: str):
-        """Exports the parsed perks into a strings.xml file for perk names.
+    def export_survivor_perk_names(self, xmlFile: str):
+        """Exports the parsed survivor perks into a strings.xml file for perk names.
         Args:
             xmlFile (str): The strings.xml to save to for perk names.
         """
-        with open(xmlFile, "w", encoding="utf8") as w:
-            w.write(self.__stringsHeader)
-            w.write("<resources>\n")
-            for perk in self.get_perks():
-                w.write(f'    <string name="{perk.get_perk_name_id()}">{perk.get_sanitized_name()}</string>\n')
-            w.write("</resources>\n")
+        self.__export_perk_names(xmlFile, self.__survivorPerks)
 
-    def export_perk_descriptions(self, xmlFile: str):
-        """Exports the parsed perks into a strings.xml file for perk descriptions.
+    def export_killer_perk_names(self, xmlFile: str):
+        """Exports the parsed killer perks into a strings.xml file for perk names.
         Args:
-            xmlFile (str): The strings.xml to save to for perk descriptions.
+            xmlFile (str): The strings.xml to save to for perk names.
+        """
+        self.__export_perk_names(xmlFile, self.__killerPerks)
+
+    def __export_perk_names(self, xmlFile: str, perks: list[Perk]):
+        """Exports the parsed perks into a strings.xml file for perk names.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk names.
+            perks (list[Perk]): List of perks.
         """
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
-            for perk in self.get_perks():
+            for perk in perks:
+                w.write(f'    <string name="{perk.get_perk_name_id()}">{perk.get_sanitized_name()}</string>\n')
+            w.write("</resources>\n")
+
+    def export_survivor_perk_descriptions(self, xmlFile: str):
+        """Exports the parsed survivor perks into a strings.xml file for perk descriptions.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk descriptions.
+        """
+        return self.__export_perk_descriptions(xmlFile, self.__survivorPerks)
+
+    def export_killer_perk_descriptions(self, xmlFile: str):
+        """Exports the parsed killer perks into a strings.xml file for perk descriptions.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk descriptions.
+        """
+        return self.__export_perk_descriptions(xmlFile, self.__killerPerks)
+
+    def __export_perk_descriptions(self, xmlFile: str, perks: list[Perk]):
+        """Exports the parsed perks into a strings.xml file for perk descriptions.
+        Args:
+            xmlFile (str): The strings.xml to save to for perk descriptions.
+            perks (list[Perk]): List of perks.
+        """
+        with open(xmlFile, "w", encoding="utf8") as w:
+            w.write(self.__stringsHeader)
+            w.write("<resources>\n")
+            for perk in perks:
                 w.write(f'    <string name="{perk.get_perk_description_id()}">{perk.get_sanitized_description()}</string>\n')
             w.write("</resources>\n")
 
@@ -62,27 +92,30 @@ class DBDParser:
         Args:
             xmlFile (str): The Android strings file to save to.
         """
-        with open(xmlFile, "w", encoding="utf8") as w:
-            w.write(self.__stringsHeader)
-            w.write("<resources>\n")
-            w.write(f'    <string name="survivor_all">All</string>\n')
-            for survivor in self.__get_owners(self.__survivorPerks):
-                if survivor:
-                    w.write(f'    <string name="survivor_{survivor.lower().replace('é', 'e').replace('-', '_')}">{survivor}</string>\n')
-            w.write("</resources>\n")
+        self.__export_names(xmlFile, self.__survivorPerks, 'survivor')
 
     def export_killer_names(self, xmlFile: str):
         """Exports the names of the killers to an Android strings.
         Args:
             xmlFile (str): The Android strings file to save to.
         """
+        self.__export_names(xmlFile, self.__killerPerks, 'killer')
+
+    def __export_names(self, xmlFile: str, perks: list[Perk], startText: str):
+        """Exports the names of the owners to an Android strings.
+        Args:
+            xmlFile (str): The Android strings file to save to.
+            perks (list[Perk]): List of perks.
+            startText (str): Label for the start of the name.
+        """
         with open(xmlFile, "w", encoding="utf8") as w:
             w.write(self.__stringsHeader)
             w.write("<resources>\n")
-            w.write(f'    <string name="killer_all">All</string>\n')
-            for killer in self.__get_owners(self.__killerPerks):
-                if killer:
-                    w.write(f'    <string name="killer_{killer.lower().replace('ō', 'o').replace(' ', '_')}">{killer}</string>\n')
+            w.write(f'    <string name="{startText.lower()}_all">All</string>\n')
+            for owner in self.__get_owners(perks):
+                if owner:
+                    ownerId = owner.lower().replace('é', 'e').replace('-', '_').replace('ō', 'o').replace(' ', '_')
+                    w.write(f'    <string name="{startText}_{ownerId}">{owner}</string>\n')
             w.write("</resources>\n")
 
     def parse(self, htmlFile: str):
