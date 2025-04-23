@@ -165,6 +165,28 @@ class DBDParser:
 
             f.write(')\n')
 
+    def export_killer_enum_class(self, ktFile: str):
+        with open(ktFile, "w", encoding="utf8") as f:
+            f.write('package dbd.dbdperks.characters\n\n')
+            f.write('import androidx.annotation.DrawableRes\n')
+            f.write('import androidx.annotation.StringRes\n')
+            f.write('import dbd.dbdperks.R\n\n')
+
+            f.write('enum class Killer(\n')
+            f.write('    val id: Int,\n')
+            f.write('    @StringRes val nameId: Int,\n')
+            f.write('    @DrawableRes val iconId: Int\n')
+            f.write(') {\n')
+
+            for index, owner in enumerate(self.__get_owners(self.__killerPerks)):
+                if owner:
+                    fOwner = owner.lower().replace('ō', 'o').replace(' ', '_')
+                    f.write(f'    {fOwner.upper()}({index}, R.string.killer_{fOwner}, R.drawable.icon_killer_{fOwner}),\n')
+                else:
+                    f.write(f'    ALL({index}, R.string.killer_all, R.drawable.icon_killer_all),\n')
+
+            f.write('}\n')
+
     def parse(self, htmlFile: str):
         """Parses all data from the HTML file.
         Args:
