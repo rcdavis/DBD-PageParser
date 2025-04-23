@@ -140,6 +140,31 @@ class DBDParser:
 
             f.write('}\n')
 
+    def export_survivor_perk_list(self, ktFile: str):
+        with open(ktFile, "w", encoding="utf8") as f:
+            f.write('package dbd.dbdperks.utils\n\n')
+            f.write('import dbd.dbdperks.R\n')
+            f.write('import dbd.dbdperks.characters.Survivor\n')
+            f.write('import dbd.dbdperks.perks.Perk\n')
+            f.write('import dbd.dbdperks.perks.PerkType\n\n')
+
+            f.write('fun getSurvivorPerksList(): List<Perk> = listOf(\n')
+
+            for index, perk in enumerate(self.__survivorPerks):
+                owner = 'all'
+                if perk.get_owner():
+                    owner = perk.get_owner().upper().replace('É', 'E').replace('-', '_')
+
+                f.write('    Perk(\n')
+                f.write(f'        id = {index},\n')
+                f.write(f'        nameId = R.string.{perk.get_perk_name_id()},\n')
+                f.write(f'        descriptionId = R.string.{perk.get_perk_description_id()},\n')
+                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_string_name()},\n')
+                f.write(f'        survivor = Survivor.{owner}\n')
+                f.write(f'    ),\n')
+
+            f.write(')\n')
+
     def parse(self, htmlFile: str):
         """Parses all data from the HTML file.
         Args:

@@ -11,3 +11,4 @@ parser.export_survivor_names("OutputStrings/survivor_name_strings.xml")
 parser.export_killer_names("OutputStrings/killer_name_strings.xml")
 
 parser.export_survivor_enum_class("OutputStrings/Survivor.kt")
+parser.export_survivor_perk_list("OutputStrings/SurvivorPerksList.kt")
