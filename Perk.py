@@ -5,18 +5,23 @@ class Perk:
         __name (str): The name of the Perk.
         __description (str): The description of the Perk.
         __owner (str): Character that the perk comes from.
+        __iconUrl (str): URL to the icon image
     """
 
-    def __init__(self, name: str, description: str, owner: str):
+    def __init__(self, name: str, description: str, owner: str, iconUrl: str):
         self.__name = name
         self.__description = description
         self.__owner = owner
+        self.__iconUrl = iconUrl
 
     def get_name(self):
         return self.__name
 
     def get_owner(self):
         return self.__owner
+
+    def get_icon_url(self):
+        return self.__iconUrl
 
     def get_sanitized_name(self) -> str:
         """The text that will be within the name strings.xml file with chars escaped.
@@ -45,6 +50,13 @@ class Perk:
             str: The id for the description string.
         """
         return 'perk_' + self.create_name_slug() + '_desc'
+
+    def get_icon_name_slug(self) -> str:
+        """Get the slug name of the icon for the perk.
+        Returns:
+            str: Slug name of the icon
+        """
+        return f'icon_perk_{self.create_name_slug()}'
 
     def __sanitize_text(self, text: str) -> str:
         """Cleans up text so that it can be placed as content within strings.xml.
