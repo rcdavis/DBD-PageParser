@@ -151,7 +151,7 @@ class DBDParser:
             f.write('fun getSurvivorPerksList(): List<Perk> = listOf(\n')
 
             for index, perk in enumerate(self.__survivorPerks):
-                owner = 'all'
+                owner = 'ALL'
                 if perk.get_owner():
                     owner = perk.get_owner().upper().replace('É', 'E').replace('-', '_')
 
@@ -161,6 +161,53 @@ class DBDParser:
                 f.write(f'        descriptionId = R.string.{perk.get_perk_description_id()},\n')
                 f.write(f'        iconId = R.drawable.icon_perk_{perk.create_string_name()},\n')
                 f.write(f'        survivor = Survivor.{owner}\n')
+                f.write(f'    ),\n')
+
+            f.write(')\n')
+
+    def export_killer_enum_class(self, ktFile: str):
+        with open(ktFile, "w", encoding="utf8") as f:
+            f.write('package dbd.dbdperks.characters\n\n')
+            f.write('import androidx.annotation.DrawableRes\n')
+            f.write('import androidx.annotation.StringRes\n')
+            f.write('import dbd.dbdperks.R\n\n')
+
+            f.write('enum class Killer(\n')
+            f.write('    val id: Int,\n')
+            f.write('    @StringRes val nameId: Int,\n')
+            f.write('    @DrawableRes val iconId: Int\n')
+            f.write(') {\n')
+
+            for index, owner in enumerate(self.__get_owners(self.__killerPerks)):
+                if owner:
+                    fOwner = owner.lower().replace('ō', 'o').replace(' ', '_')
+                    f.write(f'    {fOwner.upper()}({index}, R.string.killer_{fOwner}, R.drawable.icon_killer_{fOwner}),\n')
+                else:
+                    f.write(f'    ALL({index}, R.string.killer_all, R.drawable.icon_killer_all),\n')
+
+            f.write('}\n')
+
+    def export_killer_perk_list(self, ktFile: str):
+        with open(ktFile, "w", encoding="utf8") as f:
+            f.write('package dbd.dbdperks.utils\n\n')
+            f.write('import dbd.dbdperks.R\n')
+            f.write('import dbd.dbdperks.characters.Killer\n')
+            f.write('import dbd.dbdperks.perks.Perk\n')
+            f.write('import dbd.dbdperks.perks.PerkType\n\n')
+
+            f.write('fun getKillerPerksList(): List<Perk> = listOf(\n')
+
+            for index, perk in enumerate(self.__killerPerks):
+                owner = 'ALL'
+                if perk.get_owner():
+                    owner = perk.get_owner().upper().replace('Ō', 'O').replace(' ', '_')
+
+                f.write('    Perk(\n')
+                f.write(f'        id = {index},\n')
+                f.write(f'        nameId = R.string.{perk.get_perk_name_id()},\n')
+                f.write(f'        descriptionId = R.string.{perk.get_perk_description_id()},\n')
+                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_string_name()},\n')
+                f.write(f'        killer = Killer.{owner}\n')
                 f.write(f'    ),\n')
 
             f.write(')\n')
