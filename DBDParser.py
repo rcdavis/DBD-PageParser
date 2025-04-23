@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup, Tag
 from Perk import Perk
 import requests
+import os
 
 class DBDParser:
     """Parser for DBD data"""
@@ -53,12 +54,12 @@ class DBDParser:
             xmlFile (str): The strings.xml to save to for perk names.
             perks (list[Perk]): List of perks.
         """
-        with open(xmlFile, "w", encoding="utf8") as w:
-            w.write(self.__stringsHeader)
-            w.write("<resources>\n")
+        with self.__open_file(xmlFile, 'w') as f:
+            f.write(self.__stringsHeader)
+            f.write("<resources>\n")
             for perk in perks:
-                w.write(f'    <string name="{perk.get_perk_name_id()}">{perk.get_sanitized_name()}</string>\n')
-            w.write("</resources>\n")
+                f.write(f'    <string name="{perk.get_perk_name_id()}">{perk.get_sanitized_name()}</string>\n')
+            f.write("</resources>\n")
 
     def export_survivor_perk_descriptions(self, xmlFile: str):
         """Exports the parsed survivor perks into a strings.xml file for perk descriptions.
@@ -80,12 +81,12 @@ class DBDParser:
             xmlFile (str): The strings.xml to save to for perk descriptions.
             perks (list[Perk]): List of perks.
         """
-        with open(xmlFile, "w", encoding="utf8") as w:
-            w.write(self.__stringsHeader)
-            w.write("<resources>\n")
+        with self.__open_file(xmlFile, 'w') as f:
+            f.write(self.__stringsHeader)
+            f.write("<resources>\n")
             for perk in perks:
-                w.write(f'    <string name="{perk.get_perk_description_id()}">{perk.get_sanitized_description()}</string>\n')
-            w.write("</resources>\n")
+                f.write(f'    <string name="{perk.get_perk_description_id()}">{perk.get_sanitized_description()}</string>\n')
+            f.write("</resources>\n")
 
     def export_survivor_names(self, xmlFile: str):
         """Exports the names of the survivors to an Android strings.
@@ -108,18 +109,22 @@ class DBDParser:
             perks (list[Perk]): List of perks.
             startText (str): Label for the start of the name.
         """
-        with open(xmlFile, "w", encoding="utf8") as w:
-            w.write(self.__stringsHeader)
-            w.write("<resources>\n")
-            w.write(f'    <string name="{startText.lower()}_all">All</string>\n')
+        with self.__open_file(xmlFile, 'w') as f:
+            f.write(self.__stringsHeader)
+            f.write("<resources>\n")
+            f.write(f'    <string name="{startText.lower()}_all">All</string>\n')
             for owner in self.__get_owners(perks):
                 if owner:
                     ownerId = owner.lower().replace('é', 'e').replace('-', '_').replace('ō', 'o').replace(' ', '_')
-                    w.write(f'    <string name="{startText}_{ownerId}">{owner}</string>\n')
-            w.write("</resources>\n")
+                    f.write(f'    <string name="{startText}_{ownerId}">{owner}</string>\n')
+            f.write("</resources>\n")
 
     def export_survivor_enum_class(self, ktFile: str):
-        with open(ktFile, "w", encoding="utf8") as f:
+        """Creates Survivor enum class in kotlin.
+        Args:
+            ktFile (str): File to export to.
+        """
+        with self.__open_file(ktFile, 'w') as f:
             f.write('package dbd.dbdperks.characters\n\n')
             f.write('import androidx.annotation.DrawableRes\n')
             f.write('import androidx.annotation.StringRes\n')
@@ -141,7 +146,11 @@ class DBDParser:
             f.write('}\n')
 
     def export_survivor_perk_list(self, ktFile: str):
-        with open(ktFile, "w", encoding="utf8") as f:
+        """Creates Survivor perk list in kotlin.
+        Args:
+            ktFile (str): File to export to.
+        """
+        with self.__open_file(ktFile, 'w') as f:
             f.write('package dbd.dbdperks.utils\n\n')
             f.write('import dbd.dbdperks.R\n')
             f.write('import dbd.dbdperks.characters.Survivor\n')
@@ -159,14 +168,18 @@ class DBDParser:
                 f.write(f'        id = {index},\n')
                 f.write(f'        nameId = R.string.{perk.get_perk_name_id()},\n')
                 f.write(f'        descriptionId = R.string.{perk.get_perk_description_id()},\n')
-                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_string_name()},\n')
+                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_name_slug()},\n')
                 f.write(f'        survivor = Survivor.{owner}\n')
                 f.write(f'    ),\n')
 
             f.write(')\n')
 
     def export_killer_enum_class(self, ktFile: str):
-        with open(ktFile, "w", encoding="utf8") as f:
+        """Creates Killer enum class in kotlin.
+        Args:
+            ktFile (str): File to export to.
+        """
+        with self.__open_file(ktFile, 'w') as f:
             f.write('package dbd.dbdperks.characters\n\n')
             f.write('import androidx.annotation.DrawableRes\n')
             f.write('import androidx.annotation.StringRes\n')
@@ -188,7 +201,11 @@ class DBDParser:
             f.write('}\n')
 
     def export_killer_perk_list(self, ktFile: str):
-        with open(ktFile, "w", encoding="utf8") as f:
+        """Creates Killer perk list in kotlin.
+        Args:
+            ktFile (str): File to export to.
+        """
+        with self.__open_file(ktFile, 'w') as f:
             f.write('package dbd.dbdperks.utils\n\n')
             f.write('import dbd.dbdperks.R\n')
             f.write('import dbd.dbdperks.characters.Killer\n')
@@ -206,7 +223,7 @@ class DBDParser:
                 f.write(f'        id = {index},\n')
                 f.write(f'        nameId = R.string.{perk.get_perk_name_id()},\n')
                 f.write(f'        descriptionId = R.string.{perk.get_perk_description_id()},\n')
-                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_string_name()},\n')
+                f.write(f'        iconId = R.drawable.icon_perk_{perk.create_name_slug()},\n')
                 f.write(f'        killer = Killer.{owner}\n')
                 f.write(f'    ),\n')
 
@@ -217,7 +234,7 @@ class DBDParser:
         Args:
             htmlFile (str): HTML file to parse perks from.
         """
-        with open(htmlFile, 'r', encoding='utf8') as f:
+        with self.__open_file(htmlFile, 'r') as f:
             soup = BeautifulSoup(f.read(), 'html.parser')
 
             tables = soup.find_all("table")
@@ -287,8 +304,28 @@ class DBDParser:
         return htmlText.replace('<br/>', '\n').replace('\n', '\\n').replace('<td>', '').replace('</td>', '')
 
     def __get_owners(self, perks: list[Perk]) -> list[str]:
+        """Returns list of unique owners.
+        Args:
+            perks (list[Perk]): List of perks.
+        Returns:
+            list[str]: List of unique owner names derived from perks list.
+        """
         owners: list[str] = []
         for perk in perks:
             if not perk.get_owner() in owners:
                 owners.append(perk.get_owner())
         return owners
+
+    def __open_file(self, file: str, mode: str):
+        """Helper that creates directories, if needed, and opens a file.
+        Args:
+            file (str): File to open or create.
+            mode (str): File Open mode.
+        Returns:
+            IO: The opened file
+        """
+        dir = os.path.dirname(file)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        return open(file, mode, encoding='utf8')

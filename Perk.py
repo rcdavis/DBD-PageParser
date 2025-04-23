@@ -37,14 +37,14 @@ class Perk:
         Returns:
             str: The id for the name string.
         """
-        return 'perk_' + self.create_string_name() + '_name'
+        return 'perk_' + self.create_name_slug() + '_name'
 
     def get_perk_description_id(self) -> str:
         """The name for the string id within the description strings.xml for Android.
         Returns:
             str: The id for the description string.
         """
-        return 'perk_' + self.create_string_name() + '_desc'
+        return 'perk_' + self.create_name_slug() + '_desc'
 
     def __sanitize_text(self, text: str) -> str:
         """Cleans up text so that it can be placed as content within strings.xml.
@@ -55,7 +55,7 @@ class Perk:
         """
         return text.replace(' ', '').replace('&', '&amp;').replace('"', '\\"').replace("'", "\\'").replace('\n', '\\n')
 
-    def create_string_name(self) -> str:
+    def create_name_slug(self) -> str:
         """Cleans up name so that it can be defined as an id within strings.xml for Android.
         Returns:
             str: The name converted to an id for strings.xml (ie deja_vu).
