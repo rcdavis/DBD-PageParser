@@ -6,9 +6,16 @@ class Perk:
         __description (str): The description of the Perk.
     """
 
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, owner: str):
         self.__name = name
         self.__description = description
+        self.__owner = owner
+
+    def get_name(self):
+        return self.__name
+
+    def get_owner(self):
+        return self.__owner
 
     def get_sanitized_name(self) -> str:
         """The text that will be within the name strings.xml file with chars escaped.
