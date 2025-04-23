@@ -1,17 +1,11 @@
-from PerkParser import PerkParser
+from DBDParser import DBDParser
 
-"""parser = PerkParser("PerkPages/Perks_en.html")
-parser.export_perk_names("OutputStrings/perkNames.xml")
-parser.export_perk_descriptions("OutputStrings/perkDescriptions.xml")"""
+parser = DBDParser("PerkPages/Perks_en.html")
+parser.export_survivor_perk_names("OutputStrings/survivor_perk_name_strings.xml")
+parser.export_survivor_perk_descriptions("OutputStrings/survivor_perk_descriptions_strings.xml")
 
-parser = PerkParser("PerkPages/PerksNew.html")
-parser.export_perk_names("OutputStrings/perkNamesNew.xml")
-parser.export_perk_descriptions("OutputStrings/perkDescriptionsNew.xml")
+parser.export_killer_perk_names("OutputStrings/killer_perk_name_strings.xml")
+parser.export_killer_perk_descriptions("OutputStrings/killer_perk_descriptions_strings.xml")
 
-"""parser = PerkParser("PerkPages/Perks_fr.html")
-parser.export_perk_names("OutputStrings/perkNames_fr.xml")
-parser.export_perk_descriptions("OutputStrings/perkDescriptions_fr.xml")
-
-parser = PerkParser("PerkPages/Perks_New.html")
-parser.export_perk_names("OutputStrings/perkNames_norm.xml")
-parser.export_perk_descriptions("OutpuStrings/perkDescriptions_norm.xml")"""
+parser.export_survivor_names("OutputStrings/survivor_name_strings.xml")
+parser.export_killer_names("OutputStrings/killer_name_strings.xml")
