@@ -230,21 +230,26 @@ class DBDParser:
 
             f.write(')\n')
 
-    def export_perk_icons(self, outputDir: str = 'OutputStrings/Icons'):
+    def export_survivor_perk_icons(self, outputDir: str = 'OutputFiles/Icons'):
+        """Exports all icon images for the survivor perks.
+        Args:
+            outputDir (str): The directory to save all the icon images to.
+        """
+        self.__export_perk_icons(self.__survivorPerks, outputDir)
+
+    def export_killer_perk_icons(self, outputDir: str = 'OutputFiles/Icons'):
+        """Exports all icon images for the killer perks.
+        Args:
+            outputDir (str): The directory to save all the icon images to.
+        """
+        self.__export_perk_icons(self.__killerPerks, outputDir)
+
+    def export_perk_icons(self, outputDir: str = 'OutputFiles/Icons'):
         """Exports all icon images for the perks.
         Args:
             outputDir (str): The directory to save all the icon images to.
         """
-        directory = Path(outputDir)
-
-        for perk in self.get_perks():
-            response = requests.get(perk.get_icon_url())
-            if response.status_code == 200:
-                file = directory / f'{perk.get_icon_name_slug()}.png'
-                with self.__open_file(file, 'wb', None) as f:
-                    f.write(response.content)
-            else:
-                print(f'Failed to download icon image for "{perk.get_name()}". HTTP Status Code: {response.status_code}')
+        self.__export_perk_icons(self.get_perks(), outputDir)
 
     def parse(self, htmlFile: str):
         """Parses all data from the HTML file.
@@ -334,6 +339,22 @@ class DBDParser:
             if not perk.get_owner() in owners:
                 owners.append(perk.get_owner())
         return owners
+
+    def __export_perk_icons(self, perks: list[Perk], outputDir: str = 'OutputFiles/Icons'):
+        """Exports all icon images for the perks.
+        Args:
+            outputDir (str): The directory to save all the icon images to.
+        """
+        directory = Path(outputDir)
+
+        for perk in perks:
+            response = requests.get(perk.get_icon_url())
+            if response.status_code == 200:
+                file = directory / f'{perk.get_icon_name_slug()}.png'
+                with self.__open_file(file, 'wb', None) as f:
+                    f.write(response.content)
+            else:
+                print(f'Failed to download icon image for "{perk.get_name()}". HTTP Status Code: {response.status_code}')
 
     def __open_file(self, file: str, mode: str, encoding: str = 'utf8'):
         """Helper that creates directories, if needed, and opens a file.
