@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 
 # Output Files and Tests
-OutputStrings/
+OutputFiles/
 
 # Local directory for testing HTML parsing
 PerkPages/
