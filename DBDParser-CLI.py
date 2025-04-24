@@ -70,6 +70,18 @@ def export_survivor_perk_list(
     parser.export_survivor_perk_list(strFile)
 
 @app.command()
+def export_survivor_perk_icons(
+    output_dir: str = typer.Option("OutputFiles/Icons", help="Directory for exported icons")
+):
+    """Export survivor perk icons."""
+    strFile = Path(output_dir)
+    typer.echo(f"Exporting survivor perk icons to {strFile}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+    parser.export_survivor_perk_icons(strFile)
+
+@app.command()
 def export_killer_names(
     output_dir: str = typer.Option("OutputFiles", help="Directory for exported strings"),
     output_file: str = typer.Option("killer_name_strings.xml", help="File for exported strings")
@@ -133,6 +145,18 @@ def export_killer_perk_list(
     parser = DBDParser()
     parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
     parser.export_killer_perk_list(strFile)
+
+@app.command()
+def export_killer_perk_icons(
+    output_dir: str = typer.Option("OutputFiles/Icons", help="Directory for exported icons")
+):
+    """Export killer perk icons."""
+    strFile = Path(output_dir)
+    typer.echo(f"Exporting killer perk icons to {strFile}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+    parser.export_killer_perk_icons(strFile)
 
 if __name__ == "__main__":
     app()
