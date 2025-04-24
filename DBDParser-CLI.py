@@ -5,6 +5,19 @@ from pathlib import Path
 app = typer.Typer()
 
 @app.command()
+def export_survivor_names(
+    output_dir: str = typer.Option("OutputStrings", help="Directory for exported strings"),
+    output_file: str = typer.Option("survivor_name_strings.xml", help="File for exported strings")
+):
+    """Export survivor names to an Android strings.xml file."""
+    strFile = Path(output_dir) / output_file
+    typer.echo(f"Exporting survivor names to {strFile}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+    parser.export_survivor_names(strFile)
+
+@app.command()
 def export_survivor_perk_names(
     output_dir: str = typer.Option("OutputStrings", help="Directory for exported strings"),
     output_file: str = typer.Option("survivor_perk_name_strings.xml", help="File for exported strings")
@@ -29,6 +42,19 @@ def export_survivor_perk_descriptions(
     parser = DBDParser()
     parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
     parser.export_survivor_perk_descriptions(strFile)
+
+@app.command()
+def export_killer_names(
+    output_dir: str = typer.Option("OutputStrings", help="Directory for exported strings"),
+    output_file: str = typer.Option("killer_name_strings.xml", help="File for exported strings")
+):
+    """Export killer names to an Android strings.xml file."""
+    strFile = Path(output_dir) / output_file
+    typer.echo(f"Exporting killer names to {strFile}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+    parser.export_killer_names(strFile)
 
 @app.command()
 def export_killer_perk_names(
