@@ -158,5 +158,72 @@ def export_killer_perk_icons(
     parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
     parser.export_killer_perk_icons(strFile)
 
+@app.command()
+def export_perk_icons(
+    output_dir: str = typer.Option("OutputFiles/Icons", help="Directory for exported icons")
+):
+    """Export perk icons."""
+    strFile = Path(output_dir)
+    typer.echo(f"Exporting perk icons to {strFile}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+    parser.export_perk_icons(strFile)
+
+@app.command()
+def export_all(
+    output_dir: str = typer.Option("OutputFiles", help="Directory for exported icons")
+):
+    """Export all data."""
+    directory = Path(output_dir)
+    typer.echo(f"Exporting all data to {directory}")
+
+    parser = DBDParser()
+    parser.parse_from_url("https://deadbydaylight.fandom.com/wiki/Perks")
+
+    strFile = directory / "survivor_name_strings.xml"
+    typer.echo(f"Exporting survivor names to {strFile}")
+    parser.export_survivor_names(strFile)
+
+    strFile = directory / "survivor_perk_name_strings.xml"
+    typer.echo(f"Exporting survivor perk names to {strFile}")
+    parser.export_survivor_perk_names(strFile)
+
+    strFile = directory / "survivor_perk_descriptions_strings.xml"
+    typer.echo(f"Exporting survivor perk descriptions to {strFile}")
+    parser.export_survivor_perk_descriptions(strFile)
+
+    strFile = directory / "killer_name_strings.xml"
+    typer.echo(f"Exporting killer perk names to {strFile}")
+    parser.export_killer_names(strFile)
+
+    strFile = directory / "killer_perk_name_strings.xml"
+    typer.echo(f"Exporting killer perk names to {strFile}")
+    parser.export_killer_perk_names(strFile)
+
+    strFile = directory / "killer_perk_descriptions_strings.xml"
+    typer.echo(f"Exporting killer perk descriptions to {strFile}")
+    parser.export_killer_perk_descriptions(strFile)
+
+    strFile = directory / "Survivor.kt"
+    typer.echo(f"Exporting survivor enum class to {strFile}")
+    parser.export_survivor_enum_class(strFile)
+
+    strFile = directory / "SurvivorPerksList.kt"
+    typer.echo(f"Exporting survivor perk list data class to {strFile}")
+    parser.export_survivor_perk_list(strFile)
+
+    strFile = directory / "Killer.kt"
+    typer.echo(f"Exporting killer enum class to {strFile}")
+    parser.export_killer_enum_class(strFile)
+
+    strFile = directory / "KillerPerksList.kt"
+    typer.echo(f"Exporting killer perk list data class to {strFile}")
+    parser.export_killer_perk_list(strFile)
+
+    iconDir = directory / "Icons" 
+    typer.echo(f"Exporting perk icons to {iconDir}")
+    parser.export_perk_icons(iconDir)
+
 if __name__ == "__main__":
     app()
